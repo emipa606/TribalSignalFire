@@ -33,52 +33,78 @@ namespace TribalSignalFire
                 };
             }
 
-            if (Spawned && Map.gameConditionManager.ConditionIsActive(GameConditionDefOf.SolarFlare))
-            {
-                return new List<FloatMenuOption>
-                    {
-                        new FloatMenuOption(Translator.Translate("CannotUseSolarFlare"), null, (MenuOptionPriority)4, null, null, 0f, null, null)
-                    };
-            }
+            // Its a smoke signal, it does not care about solar-flares
+            //
+            //if (Spawned && Map.gameConditionManager.ConditionIsActive(GameConditionDefOf.SolarFlare))
+            //{
+            //    return new List<FloatMenuOption>
+            //        {
+            //            new FloatMenuOption(Translator.Translate("CannotUseSolarFlare"), null, (MenuOptionPriority)4, null, null, 0f, null, null)
+            //        };
+            //}
 
-            if (!myPawn.health.capacities.CapableOf(PawnCapacityDefOf.Talking))
+            if (!myPawn.health.capacities.CapableOf(PawnCapacityDefOf.Sight))
             {
                 return new List<FloatMenuOption>
+                {
+                    new FloatMenuOption(Translator.Translate("CannotUseReason", new object[]
+                    {
+                        Translator.Translate("IncapableOfCapacity", new object[]
                         {
-                            new FloatMenuOption(Translator.Translate("CannotUseReason", new object[]
-                            {
-                                Translator.Translate("IncapableOfCapacity", new object[]
-                                {
-                                    PawnCapacityDefOf.Talking.label
-                                })
-                            }), null, (Verse.MenuOptionPriority)4, null, null, 0f, null, null)
-                        };
+                            PawnCapacityDefOf.Sight.label
+                        })
+                    }), null, (Verse.MenuOptionPriority)4, null, null, 0f, null, null)
+                };
+            }
+            if (!myPawn.health.capacities.CapableOf(PawnCapacityDefOf.Manipulation))
+            {
+                return new List<FloatMenuOption>
+                {
+                    new FloatMenuOption(Translator.Translate("CannotUseReason", new object[]
+                    {
+                        Translator.Translate("IncapableOfCapacity", new object[]
+                        {
+                            PawnCapacityDefOf.Manipulation.label
+                        })
+                    }), null, (Verse.MenuOptionPriority)4, null, null, 0f, null, null)
+                };
             }
 
             if (!this.CanUseSignalFireNow)
             {
-                Log.Error(myPawn + " could not use comm console for unknown reason.");
+                Log.Error(myPawn + " could not use signal fire for unknown reason.");
                 return new List<FloatMenuOption>
-                            {
-                                new FloatMenuOption("Cannot use now", null, (MenuOptionPriority)4, null, null, 0f, null, null)
-                            };
+                {
+                    new FloatMenuOption("Cannot use now", null, (MenuOptionPriority)4, null, null, 0f, null, null)
+                };
+            }
+
+            CompRefuelable refuelable = ThingCompUtility.TryGetComp<CompRefuelable>(this);
+
+            if (refuelable == null || !refuelable.HasFuel)
+            {
+                return new List<FloatMenuOption>
+                {
+                    new FloatMenuOption("Cannot use now, need fuel", null, (MenuOptionPriority)4, null, null, 0f, null, null)
+                };
             }
 
             List<FloatMenuOption> list = new List<FloatMenuOption>();
-            foreach (ICommunicable commTarget in Find.FactionManager.AllFactionsInViewOrder)
+            foreach (ICommunicable commTarget in Find.FactionManager.AllFactionsVisibleInViewOrder)
             {
                 ICommunicable localCommTarget = commTarget;
                 string text = Translator.Translate("CallOnRadio", new object[]
                 {
-                                    localCommTarget.GetCallLabel()
+                    localCommTarget.GetCallLabel()
                 });
 
-                if(localCommTarget is Faction faction)
+                if (localCommTarget is Faction faction)
                 {
                     if (faction.IsPlayer)
                     {
                         continue;
                     }
+
                     if (!LeaderIsAvailableToTalk(faction))
                     {
                         string str;
@@ -99,11 +125,7 @@ namespace TribalSignalFire
                 }
                 void action()
                 {
-                    if (commTarget is TradeShip && !Building_OrbitalTradeBeacon.AllPowered(Map).Any())
-                    {
-                        Messages.Message(Translator.Translate("MessageNeedBeaconToTradeWithShip"), this, MessageTypeDefOf.RejectInput, false);
-                    }
-                    else
+                    if (!(commTarget is TradeShip))
                     {
                         Job job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire", true), this)
                         {
@@ -119,7 +141,7 @@ namespace TribalSignalFire
         }
 
         public static bool LeaderIsAvailableToTalk(Faction fac)
-            => fac.leader != null && 
+            => fac.leader != null &&
             (!fac.leader.Spawned || (!fac.leader.Downed && !fac.leader.IsPrisoner && RestUtility.Awake(fac.leader) && !fac.leader.InMentalState));
     }
 }
