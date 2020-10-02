@@ -52,7 +52,9 @@
   <ItemGroup>
     <Compile Include="Building_SignalFire.cs" />
     <Compile Include="JobDriver_UseSignalFire.cs" />
+    <Compile Include="Mod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

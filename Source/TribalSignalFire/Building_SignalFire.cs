@@ -105,6 +105,11 @@ namespace TribalSignalFire
                         continue;
                     }
 
+                    if (ModStuff.Settings.LimitContacts && faction.def.categoryTag != "Tribal")
+                    {
+                        continue;
+                    }
+
                     if (!LeaderIsAvailableToTalk(faction))
                     {
                         string str;
