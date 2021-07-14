@@ -1,8 +1,5 @@
-﻿using RimWorld;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using RimWorld;
 using Verse;
 using Verse.AI;
 
@@ -14,19 +11,19 @@ namespace TribalSignalFire
 
         private void UseAct(Pawn myPawn, ICommunicable commTarget)
         {
-            Job job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire", true), this)
+            var job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire"), this)
             {
                 commTarget = commTarget
             };
             myPawn.jobs.TryTakeOrderedJob(job, 0);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount)6);
+            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount) 6);
         }
 
         public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn myPawn)
         {
-            if (!ReachabilityUtility.CanReach(myPawn, this, (PathEndMode)4, (Danger)2, false, 0))
+            if (!myPawn.CanReach(this, (PathEndMode) 4, (Danger) 2))
             {
-                FloatMenuOption item = new FloatMenuOption(Translator.Translate("CannotUseNoPath"), null, (MenuOptionPriority)4, null, null, 0f, null, null);
+                var item = new FloatMenuOption("CannotUseNoPath".Translate(), null);
                 return new List<FloatMenuOption>
                 {
                     item
@@ -47,56 +44,46 @@ namespace TribalSignalFire
             {
                 return new List<FloatMenuOption>
                 {
-                    new FloatMenuOption(Translator.Translate("CannotUseReason", new object[]
-                    {
-                        Translator.Translate("IncapableOfCapacity", new object[]
-                        {
-                            PawnCapacityDefOf.Sight.label
-                        })
-                    }), null, (Verse.MenuOptionPriority)4, null, null, 0f, null, null)
+                    new FloatMenuOption(
+                        "CannotUseReason".Translate("IncapableOfCapacity".Translate(PawnCapacityDefOf.Sight.label)),
+                        null)
                 };
             }
+
             if (!myPawn.health.capacities.CapableOf(PawnCapacityDefOf.Manipulation))
             {
                 return new List<FloatMenuOption>
                 {
-                    new FloatMenuOption(Translator.Translate("CannotUseReason", new object[]
-                    {
-                        Translator.Translate("IncapableOfCapacity", new object[]
-                        {
-                            PawnCapacityDefOf.Manipulation.label
-                        })
-                    }), null, (Verse.MenuOptionPriority)4, null, null, 0f, null, null)
+                    new FloatMenuOption(
+                        "CannotUseReason".Translate(
+                            "IncapableOfCapacity".Translate(PawnCapacityDefOf.Manipulation.label)), null)
                 };
             }
 
-            if (!this.CanUseSignalFireNow)
+            if (!CanUseSignalFireNow)
             {
                 Log.Error(myPawn + " could not use signal fire for unknown reason.");
                 return new List<FloatMenuOption>
                 {
-                    new FloatMenuOption("Cannot use now", null, (MenuOptionPriority)4, null, null, 0f, null, null)
+                    new FloatMenuOption("Cannot use now", null)
                 };
             }
 
-            CompRefuelable refuelable = ThingCompUtility.TryGetComp<CompRefuelable>(this);
+            var refuelable = this.TryGetComp<CompRefuelable>();
 
             if (refuelable == null || !refuelable.HasFuel)
             {
                 return new List<FloatMenuOption>
                 {
-                    new FloatMenuOption("Cannot use now, need fuel", null, (MenuOptionPriority)4, null, null, 0f, null, null)
+                    new FloatMenuOption("Cannot use now, need fuel", null)
                 };
             }
 
-            List<FloatMenuOption> list = new List<FloatMenuOption>();
+            var list = new List<FloatMenuOption>();
             foreach (ICommunicable commTarget in Find.FactionManager.AllFactionsVisibleInViewOrder)
             {
-                ICommunicable localCommTarget = commTarget;
-                string text = Translator.Translate("CallOnRadio", new object[]
-                {
-                    localCommTarget.GetCallLabel()
-                });
+                var localCommTarget = commTarget;
+                var text = "CallOnRadio".Translate(localCommTarget.GetCallLabel());
 
                 if (localCommTarget is Faction faction)
                 {
@@ -112,41 +99,42 @@ namespace TribalSignalFire
 
                     if (!LeaderIsAvailableToTalk(faction))
                     {
-                        string str;
-                        if (faction.leader != null)
-                        {
-                            str = Translator.Translate("LeaderUnavailable", new object[]
-                            {
-                                                faction.leader.LabelShort
-                            });
-                        }
-                        else
-                        {
-                            str = Translator.Translate("LeaderUnavailableNoLeader");
-                        }
-                        list.Add(new FloatMenuOption(text + " (" + str + ")", null, (MenuOptionPriority)4, null, null, 0f, null, null));
+                        string str = faction.leader != null
+                            ? "LeaderUnavailable".Translate(faction.leader.LabelShort)
+                            : "LeaderUnavailableNoLeader".Translate();
+
+                        list.Add(new FloatMenuOption(text + " (" + str + ")", null));
                         continue;
                     }
                 }
+
                 void action()
                 {
-                    if (!(commTarget is TradeShip))
+                    if (commTarget is TradeShip)
                     {
-                        Job job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire", true), this)
-                        {
-                            commTarget = localCommTarget
-                        };
-                        myPawn.jobs.TryTakeOrderedJob(job, 0);
-                        PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount)6);
+                        return;
                     }
+
+                    var job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire"), this)
+                    {
+                        commTarget = localCommTarget
+                    };
+                    myPawn.jobs.TryTakeOrderedJob(job, 0);
+                    PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount) 6);
                 }
-                list.Add(FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(text, action, (MenuOptionPriority)7, null, null, 0f, null, null), myPawn, this, "ReservedBy"));
+
+                list.Add(FloatMenuUtility.DecoratePrioritizedTask(
+                    new FloatMenuOption(text, action, (MenuOptionPriority) 7), myPawn, this));
             }
+
             return list;
         }
 
         public static bool LeaderIsAvailableToTalk(Faction fac)
-            => fac.leader != null &&
-            (!fac.leader.Spawned || (!fac.leader.Downed && !fac.leader.IsPrisoner && RestUtility.Awake(fac.leader) && !fac.leader.InMentalState));
+        {
+            return fac.leader != null &&
+                   (!fac.leader.Spawned || !fac.leader.Downed && !fac.leader.IsPrisoner && fac.leader.Awake() &&
+                       !fac.leader.InMentalState);
+        }
     }
 }

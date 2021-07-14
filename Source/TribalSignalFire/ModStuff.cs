@@ -1,11 +1,12 @@
-﻿using RimWorld;
-using UnityEngine;
+﻿using UnityEngine;
 using Verse;
 
 namespace TribalSignalFire
 {
     public class ModStuff : Mod
     {
+        public static Settings Settings;
+
         public ModStuff(ModContentPack content) : base(content)
         {
             Settings = GetSettings<Settings>();
@@ -20,8 +21,5 @@ namespace TribalSignalFire
         {
             Settings.DoWindowContents(canvas);
         }
-
-        public static Settings Settings;
-
     }
 }
