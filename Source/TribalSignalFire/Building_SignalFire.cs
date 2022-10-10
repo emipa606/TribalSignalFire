@@ -3,138 +3,137 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 
-namespace TribalSignalFire
+namespace TribalSignalFire;
+
+public class Building_SignalFire : Building
 {
-    public class Building_SignalFire : Building
+    public bool CanUseSignalFireNow => Spawned;
+
+    private void UseAct(Pawn myPawn, ICommunicable commTarget)
     {
-        public bool CanUseSignalFireNow => Spawned;
-
-        private void UseAct(Pawn myPawn, ICommunicable commTarget)
+        var job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire"), this)
         {
-            var job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire"), this)
+            commTarget = commTarget
+        };
+        myPawn.jobs.TryTakeOrderedJob(job, 0);
+        PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount)6);
+    }
+
+    public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn myPawn)
+    {
+        if (!myPawn.CanReach(this, (PathEndMode)4, (Danger)2))
+        {
+            var item = new FloatMenuOption("CannotUseNoPath".Translate(), null);
+            return new List<FloatMenuOption>
             {
-                commTarget = commTarget
+                item
             };
-            myPawn.jobs.TryTakeOrderedJob(job, 0);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount) 6);
         }
 
-        public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn myPawn)
+        // Its a smoke signal, it does not care about solar-flares
+        //
+        //if (Spawned && Map.gameConditionManager.ConditionIsActive(GameConditionDefOf.SolarFlare))
+        //{
+        //    return new List<FloatMenuOption>
+        //        {
+        //            new FloatMenuOption(Translator.Translate("CannotUseSolarFlare"), null, (MenuOptionPriority)4, null, null, 0f, null, null)
+        //        };
+        //}
+
+        if (!myPawn.health.capacities.CapableOf(PawnCapacityDefOf.Sight))
         {
-            if (!myPawn.CanReach(this, (PathEndMode) 4, (Danger) 2))
+            return new List<FloatMenuOption>
             {
-                var item = new FloatMenuOption("CannotUseNoPath".Translate(), null);
-                return new List<FloatMenuOption>
-                {
-                    item
-                };
-            }
+                new FloatMenuOption(
+                    "CannotUseReason".Translate("IncapableOfCapacity".Translate(PawnCapacityDefOf.Sight.label)),
+                    null)
+            };
+        }
 
-            // Its a smoke signal, it does not care about solar-flares
-            //
-            //if (Spawned && Map.gameConditionManager.ConditionIsActive(GameConditionDefOf.SolarFlare))
-            //{
-            //    return new List<FloatMenuOption>
-            //        {
-            //            new FloatMenuOption(Translator.Translate("CannotUseSolarFlare"), null, (MenuOptionPriority)4, null, null, 0f, null, null)
-            //        };
-            //}
-
-            if (!myPawn.health.capacities.CapableOf(PawnCapacityDefOf.Sight))
+        if (!myPawn.health.capacities.CapableOf(PawnCapacityDefOf.Manipulation))
+        {
+            return new List<FloatMenuOption>
             {
-                return new List<FloatMenuOption>
-                {
-                    new FloatMenuOption(
-                        "CannotUseReason".Translate("IncapableOfCapacity".Translate(PawnCapacityDefOf.Sight.label)),
-                        null)
-                };
-            }
+                new FloatMenuOption(
+                    "CannotUseReason".Translate(
+                        "IncapableOfCapacity".Translate(PawnCapacityDefOf.Manipulation.label)), null)
+            };
+        }
 
-            if (!myPawn.health.capacities.CapableOf(PawnCapacityDefOf.Manipulation))
+        if (!CanUseSignalFireNow)
+        {
+            Log.Error(myPawn + " could not use signal fire for unknown reason.");
+            return new List<FloatMenuOption>
             {
-                return new List<FloatMenuOption>
-                {
-                    new FloatMenuOption(
-                        "CannotUseReason".Translate(
-                            "IncapableOfCapacity".Translate(PawnCapacityDefOf.Manipulation.label)), null)
-                };
-            }
+                new FloatMenuOption("TSF.CantUse".Translate(), null)
+            };
+        }
 
-            if (!CanUseSignalFireNow)
+        var refuelable = this.TryGetComp<CompRefuelable>();
+
+        if (refuelable is not { HasFuel: true })
+        {
+            return new List<FloatMenuOption>
             {
-                Log.Error(myPawn + " could not use signal fire for unknown reason.");
-                return new List<FloatMenuOption>
-                {
-                    new FloatMenuOption("Cannot use now", null)
-                };
-            }
+                new FloatMenuOption("TSF.NeedFuel".Translate(), null)
+            };
+        }
 
-            var refuelable = this.TryGetComp<CompRefuelable>();
+        var list = new List<FloatMenuOption>();
+        foreach (ICommunicable commTarget in Find.FactionManager.AllFactionsVisibleInViewOrder)
+        {
+            var localCommTarget = commTarget;
+            var text = "CallOnRadio".Translate(localCommTarget.GetCallLabel());
 
-            if (refuelable == null || !refuelable.HasFuel)
+            if (localCommTarget is Faction faction)
             {
-                return new List<FloatMenuOption>
+                if (faction.IsPlayer)
                 {
-                    new FloatMenuOption("Cannot use now, need fuel", null)
-                };
-            }
-
-            var list = new List<FloatMenuOption>();
-            foreach (ICommunicable commTarget in Find.FactionManager.AllFactionsVisibleInViewOrder)
-            {
-                var localCommTarget = commTarget;
-                var text = "CallOnRadio".Translate(localCommTarget.GetCallLabel());
-
-                if (localCommTarget is Faction faction)
-                {
-                    if (faction.IsPlayer)
-                    {
-                        continue;
-                    }
-
-                    if (ModStuff.Settings.LimitContacts && faction.def.categoryTag != "Tribal")
-                    {
-                        continue;
-                    }
-
-                    if (!LeaderIsAvailableToTalk(faction))
-                    {
-                        string str = faction.leader != null
-                            ? "LeaderUnavailable".Translate(faction.leader.LabelShort)
-                            : "LeaderUnavailableNoLeader".Translate();
-
-                        list.Add(new FloatMenuOption(text + " (" + str + ")", null));
-                        continue;
-                    }
+                    continue;
                 }
 
-                void action()
+                if (ModStuff.Settings.LimitContacts && faction.def.categoryTag != "Tribal")
                 {
-                    if (commTarget is TradeShip)
-                    {
-                        return;
-                    }
-
-                    var job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire"), this)
-                    {
-                        commTarget = localCommTarget
-                    };
-                    myPawn.jobs.TryTakeOrderedJob(job, 0);
-                    PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount) 6);
+                    continue;
                 }
 
-                list.Add(FloatMenuUtility.DecoratePrioritizedTask(
-                    new FloatMenuOption(text, action, (MenuOptionPriority) 7), myPawn, this));
+                if (!LeaderIsAvailableToTalk(faction))
+                {
+                    string str = faction.leader != null
+                        ? "LeaderUnavailable".Translate(faction.leader.LabelShort)
+                        : "LeaderUnavailableNoLeader".Translate();
+
+                    list.Add(new FloatMenuOption(text + " (" + str + ")", null));
+                    continue;
+                }
             }
 
-            return list;
+            void action()
+            {
+                if (commTarget is TradeShip)
+                {
+                    return;
+                }
+
+                var job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire"), this)
+                {
+                    commTarget = localCommTarget
+                };
+                myPawn.jobs.TryTakeOrderedJob(job, 0);
+                PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount)6);
+            }
+
+            list.Add(FloatMenuUtility.DecoratePrioritizedTask(
+                new FloatMenuOption(text, action, (MenuOptionPriority)7), myPawn, this));
         }
 
-        public static bool LeaderIsAvailableToTalk(Faction fac)
-        {
-            return fac.leader != null &&
-                   (!fac.leader.Spawned || !fac.leader.Downed && !fac.leader.IsPrisoner && fac.leader.Awake() &&
-                       !fac.leader.InMentalState);
-        }
+        return list;
+    }
+
+    public static bool LeaderIsAvailableToTalk(Faction fac)
+    {
+        return fac.leader != null &&
+               (!fac.leader.Spawned || !fac.leader.Downed && !fac.leader.IsPrisoner && fac.leader.Awake() &&
+                   !fac.leader.InMentalState);
     }
 }

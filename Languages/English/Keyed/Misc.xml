@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <TSF.LimitTribal>Limit To Tribals</TSF.LimitTribal>
+  <TSF.NeedFuel>Cannot use now, need fuel</TSF.NeedFuel>
+  <TSF.CantUse>Cannot use now</TSF.CantUse>
+  <TSF.LimitTribal.Tooltip>Limits the possible contacts to factions of the Tribal-type</TSF.LimitTribal.Tooltip>
+  <TSF.CurrentModVersion>Installed mod-version: {0}</TSF.CurrentModVersion>
+</LanguageData>

@@ -1,6 +1,6 @@
 # TribalSignalFire
 
-![Image](https://i.imgur.com/WAEzk68.png)
+![Image](https://i.imgur.com/buuPQel.png)
 
 Update of Cryusakis mod
 https://steamcommunity.com/sharedfiles/filedetails/?id=1556062693
@@ -11,19 +11,10 @@ https://steamcommunity.com/sharedfiles/filedetails/?id=1556062693
 - Now requires pawn to see and manipulate instead of talking
 - Added option to limit contacts to Tribal-factions only
 
-![Image](https://i.imgur.com/7Gzt3Rg.png)
+![Image](https://i.imgur.com/pufA0kM.png)
 
-
-[table]
-	[tr]
-		[td]https://invite.gg/Mlie]![Image](https://i.imgur.com/zdzzBrc.png)
-[/td]
-		[td]https://github.com/emipa606/TribalSignalFire]![Image](https://i.imgur.com/kTkpTOE.png)
-[/td]
-	[/tr]
-[/table]
 	
-![Image](https://i.imgur.com/NOW7jU1.png)
+![Image](https://i.imgur.com/Z4GOv8H.png)
 
 
 Tribal colonies were never able to communicate with other factions in the game, so this mod will allow you to do just that. 
@@ -33,7 +24,7 @@ The SignalFire is built, looks and requires to be refuled just like the campfire
 Originally made by Cryusaki.
 
 
-![Image](https://i.imgur.com/Rs6T6cr.png)
+![Image](https://i.imgur.com/PwoNOj4.png)
 
 
 
