@@ -30,7 +30,7 @@ public class Building_SignalFire : Building
             };
         }
 
-        // Its a smoke signal, it does not care about solar-flares
+        // It's a smoke signal, it does not care about solar-flares
         //
         //if (Spawned && Map.gameConditionManager.ConditionIsActive(GameConditionDefOf.SolarFlare))
         //{
@@ -108,6 +108,10 @@ public class Building_SignalFire : Building
                 }
             }
 
+            list.Add(FloatMenuUtility.DecoratePrioritizedTask(
+                new FloatMenuOption(text, action, (MenuOptionPriority)7), myPawn, this));
+            continue;
+
             void action()
             {
                 if (commTarget is TradeShip)
@@ -122,9 +126,6 @@ public class Building_SignalFire : Building
                 myPawn.jobs.TryTakeOrderedJob(job, 0);
                 PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount)6);
             }
-
-            list.Add(FloatMenuUtility.DecoratePrioritizedTask(
-                new FloatMenuOption(text, action, (MenuOptionPriority)7), myPawn, this));
         }
 
         return list;
