@@ -21,6 +21,7 @@
     <constructEffect>ConstructDirt</constructEffect>
     <tickerType>Normal</tickerType>
     <fillPercent>0.20</fillPercent>
+    <disableImpassableShotOverConfigError>true</disableImpassableShotOverConfigError>
     <canOverlapZones>false</canOverlapZones>
     <statBases>
       <MaxHitPoints>120</MaxHitPoints>
