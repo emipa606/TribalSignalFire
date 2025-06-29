@@ -9,24 +9,24 @@ public class Settings : ModSettings
 
     public void DoWindowContents(Rect canvas)
     {
-        var gap = 8f;
-        var listing_Standard = new Listing_Standard
+        const float gap = 8f;
+        var listingStandard = new Listing_Standard
         {
             ColumnWidth = canvas.width
         };
-        listing_Standard.Begin(canvas);
-        listing_Standard.Gap(gap);
-        listing_Standard.CheckboxLabeled("TSF.LimitTribal".Translate(), ref LimitContacts,
+        listingStandard.Begin(canvas);
+        listingStandard.Gap(gap);
+        listingStandard.CheckboxLabeled("TSF.LimitTribal".Translate(), ref LimitContacts,
             "TSF.LimitTribal.Tooltip".Translate());
-        if (ModStuff.currentVersion != null)
+        if (ModStuff.CurrentVersion != null)
         {
-            listing_Standard.Gap();
+            listingStandard.Gap();
             GUI.contentColor = Color.gray;
-            listing_Standard.Label("TSF.CurrentModVersion".Translate(ModStuff.currentVersion));
+            listingStandard.Label("TSF.CurrentModVersion".Translate(ModStuff.CurrentVersion));
             GUI.contentColor = Color.white;
         }
 
-        listing_Standard.End();
+        listingStandard.End();
     }
 
     public override void ExposeData()

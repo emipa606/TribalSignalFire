@@ -9,16 +9,6 @@ public class Building_SignalFire : Building
 {
     public bool CanUseSignalFireNow => Spawned;
 
-    private void UseAct(Pawn myPawn, ICommunicable commTarget)
-    {
-        var job = new Job(DefDatabase<JobDef>.GetNamed("UseSignalFire"), this)
-        {
-            commTarget = commTarget
-        };
-        myPawn.jobs.TryTakeOrderedJob(job, 0);
-        PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount)6);
-    }
-
     public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn myPawn)
     {
         if (!myPawn.CanReach(this, (PathEndMode)4, (Danger)2))
@@ -30,21 +20,11 @@ public class Building_SignalFire : Building
             };
         }
 
-        // It's a smoke signal, it does not care about solar-flares
-        //
-        //if (Spawned && Map.gameConditionManager.ConditionIsActive(GameConditionDefOf.SolarFlare))
-        //{
-        //    return new List<FloatMenuOption>
-        //        {
-        //            new FloatMenuOption(Translator.Translate("CannotUseSolarFlare"), null, (MenuOptionPriority)4, null, null, 0f, null, null)
-        //        };
-        //}
-
         if (!myPawn.health.capacities.CapableOf(PawnCapacityDefOf.Sight))
         {
             return new List<FloatMenuOption>
             {
-                new FloatMenuOption(
+                new(
                     "CannotUseReason".Translate("IncapableOfCapacity".Translate(PawnCapacityDefOf.Sight.label)),
                     null)
             };
@@ -54,7 +34,7 @@ public class Building_SignalFire : Building
         {
             return new List<FloatMenuOption>
             {
-                new FloatMenuOption(
+                new(
                     "CannotUseReason".Translate(
                         "IncapableOfCapacity".Translate(PawnCapacityDefOf.Manipulation.label)), null)
             };
@@ -65,7 +45,7 @@ public class Building_SignalFire : Building
             Log.Error(myPawn + " could not use signal fire for unknown reason.");
             return new List<FloatMenuOption>
             {
-                new FloatMenuOption("TSF.CantUse".Translate(), null)
+                new("TSF.CantUse".Translate(), null)
             };
         }
 
@@ -75,7 +55,7 @@ public class Building_SignalFire : Building
         {
             return new List<FloatMenuOption>
             {
-                new FloatMenuOption("TSF.NeedFuel".Translate(), null)
+                new("TSF.NeedFuel".Translate(), null)
             };
         }
 
@@ -97,7 +77,7 @@ public class Building_SignalFire : Building
                     continue;
                 }
 
-                if (!LeaderIsAvailableToTalk(faction))
+                if (!leaderIsAvailableToTalk(faction))
                 {
                     string str = faction.leader != null
                         ? "LeaderUnavailable".Translate(faction.leader.LabelShort)
@@ -131,7 +111,7 @@ public class Building_SignalFire : Building
         return list;
     }
 
-    public static bool LeaderIsAvailableToTalk(Faction fac)
+    private static bool leaderIsAvailableToTalk(Faction fac)
     {
         return fac.leader != null &&
                (!fac.leader.Spawned || !fac.leader.Downed && !fac.leader.IsPrisoner && fac.leader.Awake() &&

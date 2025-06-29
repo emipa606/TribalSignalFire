@@ -15,17 +15,17 @@ public class JobDriver_UseSignalFire : JobDriver
         yield return Toils_Reserve.Reserve((TargetIndex)1);
         yield return Toils_Goto.GotoCell((TargetIndex)1, (PathEndMode)4).FailOn(delegate(Toil to)
         {
-            var building_SignalFire = (Building_SignalFire)to.actor.jobs.curJob.GetTarget((TargetIndex)1).Thing;
-            return !building_SignalFire.CanUseSignalFireNow;
+            var buildingSignalFire = (Building_SignalFire)to.actor.jobs.curJob.GetTarget((TargetIndex)1).Thing;
+            return !buildingSignalFire.CanUseSignalFireNow;
         });
         yield return new Toil
         {
             initAction = () =>
             {
                 var negotiator = pawn;
-                var building_SignalFire =
+                var buildingSignalFire =
                     (Building_SignalFire)negotiator.jobs.curJob.GetTarget((TargetIndex)1).Thing;
-                var canUseSignalFireNow = building_SignalFire.CanUseSignalFireNow;
+                var canUseSignalFireNow = buildingSignalFire.CanUseSignalFireNow;
                 if (canUseSignalFireNow)
                 {
                     negotiator.jobs.curJob.commTarget.TryOpenComms(negotiator);

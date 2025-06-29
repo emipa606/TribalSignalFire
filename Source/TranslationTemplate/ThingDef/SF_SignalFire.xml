@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <LanguageData>
+  <!-- EN: signal fire -->
   <SignalFire.label>signal fire</SignalFire.label>
+  <!-- EN: Allows contact with remote traders as well as other factions for trade and diplomacy. -->
   <SignalFire.description>Allows contact with remote traders as well as other factions for trade and diplomacy.</SignalFire.description>
 </LanguageData>
