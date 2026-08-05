@@ -36,4 +36,4 @@ Originally made by Cryusaki.
 
  
 
-[![Image](https://img.shields.io/github/v/release/emipa606/TribalSignalFire?label=latest%20version&style=plastic&color=9f1111&labelColor=black)](https://steamcommunity.com/sharedfiles/filedetails/changelog/2026582975) | tags: interaction, factions
+[![Image](https://img.shields.io/github/v/release/emipa606/TribalSignalFire?label=latest%20version&style=plastic&color=9f1111&labelColor=black)](https://steamcommunity.com/sharedfiles/filedetails/changelog/2026582975) | interaction, factions

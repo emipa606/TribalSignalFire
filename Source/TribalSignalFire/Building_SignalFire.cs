@@ -11,7 +11,7 @@ public class Building_SignalFire : Building
 
     public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn myPawn)
     {
-        if (!myPawn.CanReach(this, (PathEndMode)4, (Danger)2))
+        if (!myPawn.CanReach(this, PathEndMode.InteractionCell, Danger.Some))
         {
             var item = new FloatMenuOption("CannotUseNoPath".Translate(), null);
             return new List<FloatMenuOption>
@@ -42,7 +42,7 @@ public class Building_SignalFire : Building
 
         if (!CanUseSignalFireNow)
         {
-            Log.Error(myPawn + " could not use signal fire for unknown reason.");
+            Log.Error($"{myPawn} could not use signal fire for unknown reason.");
             return new List<FloatMenuOption>
             {
                 new("TSF.CantUse".Translate(), null)
@@ -89,7 +89,7 @@ public class Building_SignalFire : Building
             }
 
             list.Add(FloatMenuUtility.DecoratePrioritizedTask(
-                new FloatMenuOption(text, action, (MenuOptionPriority)7), myPawn, this));
+                new FloatMenuOption(text, action, MenuOptionPriority.InitiateSocial), myPawn, this));
             continue;
 
             void action()
@@ -103,7 +103,7 @@ public class Building_SignalFire : Building
                 {
                     commTarget = localCommTarget
                 };
-                myPawn.jobs.TryTakeOrderedJob(job, 0);
+                myPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
                 PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.OpeningComms, (KnowledgeAmount)6);
             }
         }

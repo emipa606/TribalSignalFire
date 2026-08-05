@@ -12,10 +12,10 @@ public class JobDriver_UseSignalFire : JobDriver
 
     protected override IEnumerable<Toil> MakeNewToils()
     {
-        yield return Toils_Reserve.Reserve((TargetIndex)1);
-        yield return Toils_Goto.GotoThing((TargetIndex)1, (PathEndMode)4).FailOn(delegate(Toil to)
+        yield return Toils_Reserve.Reserve(TargetIndex.A);
+        yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell).FailOn(delegate(Toil to)
         {
-            var buildingSignalFire = (Building_SignalFire)to.actor.jobs.curJob.GetTarget((TargetIndex)1).Thing;
+            var buildingSignalFire = (Building_SignalFire)to.actor.jobs.curJob.GetTarget(TargetIndex.A).Thing;
             return !buildingSignalFire.CanUseSignalFireNow;
         });
         yield return new Toil
@@ -24,7 +24,7 @@ public class JobDriver_UseSignalFire : JobDriver
             {
                 var negotiator = pawn;
                 var buildingSignalFire =
-                    (Building_SignalFire)negotiator.jobs.curJob.GetTarget((TargetIndex)1).Thing;
+                    (Building_SignalFire)negotiator.jobs.curJob.GetTarget(TargetIndex.A).Thing;
                 var canUseSignalFireNow = buildingSignalFire.CanUseSignalFireNow;
                 if (canUseSignalFireNow)
                 {
