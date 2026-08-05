@@ -13,7 +13,7 @@ public class JobDriver_UseSignalFire : JobDriver
     protected override IEnumerable<Toil> MakeNewToils()
     {
         yield return Toils_Reserve.Reserve((TargetIndex)1);
-        yield return Toils_Goto.GotoCell((TargetIndex)1, (PathEndMode)4).FailOn(delegate(Toil to)
+        yield return Toils_Goto.GotoThing((TargetIndex)1, (PathEndMode)4).FailOn(delegate(Toil to)
         {
             var buildingSignalFire = (Building_SignalFire)to.actor.jobs.curJob.GetTarget((TargetIndex)1).Thing;
             return !buildingSignalFire.CanUseSignalFireNow;
